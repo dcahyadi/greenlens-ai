@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is Indonesia's unconditional emission reduction target in the Enhanced NDC 2022?",
+    "expected_source": "ndc/enhanced-ndc-2022-en.pdf",
+    "expected_answer_contains": ["31.89", "unconditional"]
+  },
+  {
+    "question": "How much financing was committed under JETP Indonesia?",
+    "expected_source": "jetp/jetp-cipp-2023.pdf",
+    "expected_answer_contains": ["20 billion", "USD"]
+  },
+  {
+    "question": "What is the PLTS Atap regulation under Permen ESDM 2/2024?",
+    "expected_source": "esdm/permen-esdm-2-2024.pdf",
+    "expected_answer_contains": ["PLTS", "net metering"]
+  },
+  {
+    "question": "What carbon pricing instruments are introduced in Perpres 98/2021?",
+    "expected_source": "carbon/perpres-98-2021-en.pdf",
+    "expected_answer_contains": ["carbon trading", "carbon levy"]
+  },
+  {
+    "question": "What is the status of JETP implementation as of 2025?",
+    "expected_source": "jetp/jetp-progress-report-2025-en.pdf",
+    "expected_answer_contains": ["financing", "approved"]
+  },
+  {
+    "question": "Apa itu AMDAL dan siapa yang wajib membuatnya?",
+    "expected_source": "klhk/permen-LHK-4-2021.pdf",
+    "expected_answer_contains": ["AMDAL", "lingkungan"]
+  },
+  {
+    "question": "How does TKBI version 3 classify renewable energy activities?",
+    "expected_source": "ojk/tkbi-ver3-2026-en.pdf",
+    "expected_answer_contains": ["green", "classification"]
+  },
+  {
+    "question": "What is IDX Carbon and how does POJK 14/2023 regulate it?",
+    "expected_source": "carbon/pojk-14-2023-id-carbon-trading.pdf",
+    "expected_answer_contains": ["bursa karbon", "carbon"]
+  },
+  {
+    "question": "What are Indonesia's renewable energy targets under Perpres 112/2022?",
+    "expected_source": "esdm/perpres-112-2022.pdf",
+    "expected_answer_contains": ["renewable", "energy"]
+  },
+  {
+    "question": "How does Perpres 110/2025 update the carbon economy framework?",
+    "expected_source": "carbon/perpres-110-2025-id.pdf",
+    "expected_answer_contains": ["karbon", "emisi"]
+  }
+]

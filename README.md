@@ -1,168 +1,103 @@
-# GreenLens-AI RAG based Assistant
+# 🌿 GreenLens AI
 
-A Retrieval-Augmented Generation (RAG) web application where users query real Indonesia Government Documents about 
-green economy, energy policy, and environmental regulations (KLHK regulations, NDC Indonesia, JETP framework, carbon credit policies, AMDAL guidelines) 
-and get AI-powered answers with source citations.
+A Retrieval-Augmented Generation (RAG) powered Q&A application for querying Indonesia's green economy policies and sustainability regulations, including NDC climate commitments, JETP energy transition plans, AMDAL environmental guidelines, carbon credit policies, and KLHK regulations.
 
----
+## 🔗 Links
 
-## Features
+- **Live App**: see [docs/deployed.md](docs/deployed.md)
+- **Task Board**: https://trello.com/your-board
+- **Demo Recording**: https://your-demo-link
 
-- 🔍 **Semantic search** over 10 company policy documents
-- 📚 **Citation-grounded answers** — every answer links to source documents
-- 🛡️ **Guardrails** — refuses out-of-scope questions, limits output length
-- 💬 **Chat UI** — clean web interface with suggestion chips
-- ⚡ **REST API** — `/chat` endpoint for programmatic access
-- 🧪 **Evaluation** — groundedness, citation accuracy, and latency metrics
-- 🔄 **CI/CD** — GitHub Actions pipeline
+## 📚 Stack
 
----
+| Layer | Technology |
+|---|---|
+| Frontend | React 18 + TypeScript + Vite + Tailwind CSS |
+| Backend | FastAPI + Python 3.13 |
+| RAG | LangChain + ChromaDB (embedded) |
+| Embeddings | BAAI/bge-m3 (multilingual EN+ID) |
+| LLM | OpenRouter (Llama 3.1 8B) |
+| Deployment | Render (Docker backend + Static Site frontend) |
+| CI/CD | GitHub Actions |
 
-## Quick Start
+## 🚀 Local Development (Python 3.13)
 
-### 1. Prerequisites
+### Prerequisites
+- Python 3.13.x
+- Node.js 20+
 
-- Python 3.13+
-- A free [OpenRouter](https://openrouter.ai) API key
-
-### 2. Clone and set up environment
+### 1. Clone & place your documents
 
 ```bash
-git clone https://github.com/yourname/greenlens-ai.git
+git clone https://github.com/your-org/greenlens-ai.git
 cd greenlens-ai
-
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-
-pip install -r requirements.txt
 ```
 
-### 3. Configure environment variables
+Place your PDFs into `data/documents/` by category:
+```
+data/documents/
+├── carbon/    perpres-98-2021-en.pdf, perpres-98-2021-id.pdf,
+│              perpres-110-2025-id.pdf, pojk-14-2023-id-carbon-trading.pdf
+├── esdm/      permen-esdm-2-2024.pdf, perpres-112-2022.pdf
+├── jetp/      jetp-cipp-2023.pdf, jetp-progress-report-2025-en.pdf,
+│              jetp-progress-report-2025-id.pdf
+├── klhk/      permen-LHK-4-2021.pdf, permen-LHK-21-2022.pdf, pp-22-2021.pdf
+├── ndc/       enhanced-ndc-2022-en.pdf, updated-ndc-2021-en.pdf
+└── ojk/       tkbi-ver3-2026-en.pdf, tkbi-ver3-2026-id.pdf,
+               tkbi-fact-sheets.pdf, tkbi-faq.pdf
+```
+
+### 2. Backend setup
 
 ```bash
+cd backend
 cp .env.example .env
-# Edit .env and add your OPENROUTER_API_KEY
+# Open .env and set your OPENROUTER_API_KEY
+
+# Python 3.13: install PyTorch CPU first, then the rest
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements.txt
+
+# Run ingestion — builds chroma_db/ folder
+python ingestion/indexer.py
+
+# Start API
+uvicorn app.main:app --reload --port 8000
 ```
 
-### 4. Run ingestion (build the vector index)
+### 3. Frontend setup
 
 ```bash
-python scripts/ingest.py
+cd frontend
+npm install
+cp .env.example .env.local   # VITE_API_URL=http://localhost:8000
+npm run dev
+# → Open http://localhost:5173
 ```
 
-This parses all policy documents in `data/policies/`, chunks them, embeds with a local HuggingFace model, and stores in ChromaDB. Runs once; re-run only if policies change.
+> **No Docker needed locally.** ChromaDB runs embedded inside FastAPI (just a local folder).
+> Docker is only used by Render for cloud deployment.
 
-### 5. Start the application
+## 🧪 Testing
 
 ```bash
-python app.py
-```
-
-Open [http://localhost:5000](http://localhost:5000) in your browser.
-
----
-
-## API Reference
-
-### `GET /health`
-Returns system status.
-```json
-{ "status": "ok", "vectorstore_ready": true, "version": "1.0.0" }
-```
-
-### `POST /chat`
-Ask a policy question.
-
-**Request:**
-```json
-{ "question": "How many PTO days do I get?" }
-```
-
-**Response:**
-```json
-{
-  "answer": "Full-time employees in their first two years receive 15 days of PTO per year [1].",
-  "citations": [
-    {
-      "index": 1,
-      "doc_id": "pto_policy",
-      "source": "pto_policy.md",
-      "snippet": "Years 0–2: 15 days per year (1.25 days/month)",
-      "score": 0.8921
-    }
-  ],
-  "latency_ms": 1243.5
-}
-```
-
-### `GET /`
-Chat web interface.
-
----
-
-## Running Evaluation
-
-```bash
-python src/evaluation/evaluator.py
-```
-
-Results are saved to `src/evaluation/eval_report.json`.
-
----
-
-## Project Structure
-
-```
-greenlens-ai/
-├── data/policies/          # 10 synthetic company policy documents
-├── src/
-│   ├── ingestion/          # Parser, chunker, embedder
-│   ├── retrieval/          # ChromaDB vectorstore, retriever
-│   ├── generation/         # LLM client, prompt templates, guardrails
-│   ├── evaluation/         # Eval set and evaluator
-│   └── app/                # Flask routes and chat UI
-├── scripts/ingest.py       # Run ingestion pipeline
-├── tests/                  # Pytest smoke tests
-├── app.py                  # Application entry point
-├── requirements.txt
-└── .env.example
-```
-
----
-
-## Running Tests
-
-```bash
+cd backend
 pytest tests/ -v
 ```
 
----
+## 📄 Docs
 
-## Environment Variables
+- [Design & Evaluation](docs/design-and-evaluation.md) — architecture decisions, RAG evaluation
+- [AI Tooling](docs/ai-tooling.md) — AI tools used during development
+- [Deployed](docs/deployed.md) — live deployment link
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `OPENROUTER_API_KEY` | *(required)* | OpenRouter API key |
-| `LLM_MODEL` | `z-ai/glm-4.5-air:free` | Model to use |
-| `EMBEDDING_MODEL` | `sentence-transformers/all-MiniLM-L6-v2` | Local embedding model |
-| `CHROMA_PERSIST_DIR` | `./chroma_db` | ChromaDB storage path |
-| `RETRIEVAL_TOP_K` | `5` | Number of chunks to retrieve |
-| `FLASK_PORT` | `5000` | Port for the Flask server |
-| `RANDOM_SEED` | `42` | Seed for reproducibility |
+## 🚀 Deployment (Render)
 
----
-
-## Policy Documents
-
-| Document | Topics Covered |
-|----------|---------------|
-| `pto_policy.md` | Accrual, carryover, blackout periods |
-| `sick_leave_policy.md` | Sick days, medical documentation |
-| `holiday_policy.md` | 11 holidays, floating holidays, holiday pay |
-| `remote_work_policy.md` | Hybrid rules, core hours, equipment |
-| `expense_policy.md` | Meals, travel, home office, receipts |
-| `security_policy.md` | Passwords, MFA, data classification |
-| `code_of_conduct.md` | Ethics, anti-harassment, gifts |
-| `onboarding_policy.md` | Day 1, 30/60/90-day goals, benefits |
-| `performance_review_policy.md` | Ratings, merit increases, PIP |
-| `data_privacy_policy.md` | GDPR, CCPA, data subject rights |
+1. Push to GitHub
+2. Connect repo on render.com → "Use Blueprint" (reads `render.yaml` automatically)
+3. Set `OPENROUTER_API_KEY` in Render dashboard under Environment
+4. Run ingestion locally, then upload to Render disk:
+   ```bash
+   export RENDER_SSH=ssh-xxxx@ssh.singapore.render.com
+   ./backend/ingestion/upload_to_render.sh
+   ```
