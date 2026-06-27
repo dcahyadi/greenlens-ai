@@ -1,0 +1,36 @@
+# Environment
+.env
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Vector store (rebuilt via ingest.py)
+chroma_db/
+chroma_db_test/
+
+# Evaluation output
+src/evaluation/eval_report.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python eggs
+*.egg-info/
+dist/
+build/
+
+# Pytest
+.pytest_cache/
+htmlcov/
+.coverage
