@@ -1,7 +1,8 @@
 # GreenLens-AI RAG based Assistant
 
-A Retrieval-Augmented Generation (RAG) application that answers investors about Indonesia policies for Green Energy, Green Economic.
-
+A Retrieval-Augmented Generation (RAG) web application where users query real Indonesia Government Documents about 
+green economy, energy policy, and environmental regulations (KLHK regulations, NDC Indonesia, JETP framework, carbon credit policies, AMDAL guidelines) 
+and get AI-powered answers with source citations.
 ---
 
 ## Features
