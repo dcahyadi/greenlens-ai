@@ -7,45 +7,46 @@ GreenLens AI is a full-stack RAG (Retrieval-Augmented Generation) application th
 ### 1.1 Full System Architecture
 
 ```
-┌──────────────┐     ┌─────────────────────────────────────────────────┐
-│     User     │────▶│                React Frontend                   │
-│  Web browser │     │  Chat UI · citations · topic filter · EN/ID     │
-└──────────────┘     └─────────────────────┬───────────────────────────┘
-                                           │ HTTP /api/query
-                                           ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                    FastAPI Backend (Python 3.13)                     │
-│                                                                      │
-│  ┌───────────────────┐     ┌──────────────────────────────────────┐  │
-│  │    API routers    │────▶│            RAG chain                 │  │
-│  │  /query /ingest   │     │  ConversationalRetrievalChain        │  │
-│  │  /health          │     │  MMR retrieval · k=5                 │  │
-│  └───────────────────┘     │  context + chat history in prompt    │  │
-│                            │  retry w/ backoff (tenacity)         │  │
-│                            │  metadata category filter            │  │
-│                            └──────────────────────────────────────┘  │
-└───────────────┬──────────────────────┬───────────────────┬───────────┘
-                │                      │                   │
-                ▼                      ▼                   ▼
-┌──────────────────────┐  ┌───────────────────────┐  ┌───────────────┐
-│       ChromaDB       │  │      Embeddings        │  │      LLM      │
-│  Embedded vector     │  │  BAAI/bge-m3           │  │  OpenRouter   │
-│  store (local /      │  │  multilingual EN+ID    │  │  Llama 3.1 8B │
-│  Render disk)        │  └───────────────────────┘  └───────────────┘
+┌──────────────┐     ┌───────────────────────────────────────────────────┐
+│     User     │────>│              React Frontend                       │
+│  Web browser │     │  Chat UI · citations · topic filter · EN/ID       │
+└──────────────┘     └───────────────────────────┬───────────────────────┘
+                                                 │ HTTP /api/query
+                                                 ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                   FastAPI Backend (Python 3.13)                        │
+│                                                                        │
+│  ┌────────────────────┐     ┌────────────────────────────────────┐     │
+│  │    API routers     │────>│           RAG chain                │     │
+│  │  /query /ingest    │     │  ConversationalRetrievalChain      │     │
+│  │  /health           │     │  MMR retrieval · k=5               │     │
+│  └────────────────────┘     │  context + chat history in prompt  │     │
+│                             │  retry w/ backoff (tenacity)       │     │
+│                             │  metadata category filter          │     │
+│                             └────────────────────────────────────┘     │
+│                                                                        │
+└───────────────┬─────────────────────────┬───────────────┬────────────-─┘
+                │                         │               │
+                ▼                         ▼               ▼
+┌──────────────────────┐  ┌─────────────────────-┐  ┌───────────────┐
+│      ChromaDB        │  │     Embeddings       │  │     LLM       │
+│  Embedded vector     │  │  BAAI/bge-m3         │  │  OpenRouter   │
+│  store (local /      │  │  multilingual EN+ID  │  │  Llama 3.1 8B │
+│  Render disk)        │  └─────────────────────-┘  └───────────────┘
 └──────────┬───────────┘
-           │ (one-time offline ingestion)
+           │  (one-time offline ingestion)
            ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                Document Ingestion Pipeline (offline)                 │
-│                                                                      │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌────────────────────┐ │
-│  │    PDF loader    │  │  Text splitter   │  │   Embed + index    │ │
-│  │ PyPDF/PyMuPDF    │─▶│ chunk + overlap  │─▶│  write to ChromaDB │ │
-│  └──────────────────┘  └──────────────────┘  └────────────────────┘ │
-│                                                                      │
-│  metadata.py registry · FAQ = 512 tok · regulations = 1000 tok      │
-│  18 files · 6 categories · bilingual EN + ID                        │
-└──────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│                 Document Ingestion Pipeline (offline)                  │
+│                                                                        │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌───────────────────┐     │
+│  │    PDF loader    │  │  Text splitter   │  │   Embed + index   │     │
+│  │  PyPDF/PyMuPDF   │─>│  chunk+overlap   │─>│  write to ChromaDB│     │
+│  └──────────────────┘  └──────────────────┘  └───────────────────┘     │
+│                                                                        │
+│  metadata.py registry · FAQ = 512 tok · regulations = 1000 tok         │
+│  18 files · 6 categories · bilingual EN + ID                           │
+└────────────────────────────────────────────────────────────────────────┘
 
 Supporting:
   CI/CD  │ GitHub Actions → lint + test + build → auto-deploy to Render
